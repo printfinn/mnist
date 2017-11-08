@@ -11,3 +11,5 @@ Here is the performance of our model on test set:
 
 The test set accuracy is about 97.2%.
 
+LICENSE: MIT
+
