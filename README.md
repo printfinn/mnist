@@ -12,9 +12,8 @@ In this project we will:
 
 - Implement a 2-layer neural network.
 - Compute the forward pass and backward pass with svm loss.
-- Use the batch normlizaiton to help network converge.
-- Use the dropout method to avoid overfitting.
-- Use a stochastic gradient descent with momentum to optimize the loss function.
+- Use the normlizaiton to help network converge.
+- Use a stochastic gradient descent to optimize the loss function.
 
 
 ## Examples
