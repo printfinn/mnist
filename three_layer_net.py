@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from past.builtins import xrange
 from layers import *
-class TwoLayerNet(object):
+class ThreeLayerNet(object):
     """
     A two-layer fully-connected neural network. The net has an input dimension of
     N, a hidden layer dimension of H, and performs classification over C classes.
@@ -19,7 +19,7 @@ class TwoLayerNet(object):
     The outputs of the second fully-connected layer are the scores for each class.
     """
 
-    def __init__(self, input_size, hidden_size, output_size, std=1e-4, use_Res=False):
+    def __init__(self, input_size, hidden_size, hidden2_size, output_size, std=1e-4, use_Res=False):
         """
         Initialize the model. Weights are initialized to small random values and
         biases are initialized to zero. Weights and biases are stored in the
@@ -38,12 +38,14 @@ class TwoLayerNet(object):
         self.params = {}
         self.params['W1'] = std * np.random.randn(input_size, hidden_size)
         self.params['b1'] = np.zeros(hidden_size)
-        self.params['W2'] = std * np.random.randn(hidden_size, output_size)
-        self.params['b2'] = np.zeros(output_size)
+        self.params['W2'] = std * np.random.randn(hidden_size, hidden2_size)
+        self.params['b2'] = np.zeros(hidden2_size)
+        self.params['W3'] = std * np.random.randn(hidden2_size, output_size)
+        self.params['b3'] = np.zeros(output_size)
         self.use_Res = use_Res
         if use_Res == True:
-            self.params['Wr'] = std * np.random.randn(input_size, output_size)
-            self.params['br'] = np.zeros(output_size)
+            self.params['Wr'] = std * np.random.randn(input_size, hidden2_size)
+            self.params['br'] = np.zeros(hidden2_size)
 
     def loss(self, X, y=None, reg=0.0):
         """
@@ -71,6 +73,7 @@ class TwoLayerNet(object):
         # Unpack variables from the params dictionary
         W1, b1 = self.params['W1'], self.params['b1']
         W2, b2 = self.params['W2'], self.params['b2']
+        W3, b3 = self.params['W3'], self.params['b3']
         if self.use_Res == True:
             Wr, br = self.params['Wr'], self.params['br']
         N, D = X.shape
@@ -82,15 +85,19 @@ class TwoLayerNet(object):
         # shape (N, C).                                                             #
         #############################################################################
 
-        layer1_out, cache1 = affine_forward(X, W1, b1)
-        layer1_out_relu, cache1_relu = relu_forward(layer1_out)
-        layer2_out, cache2 = affine_forward(layer1_out_relu, W2, b2)
-        scores = layer2_out
+        layer1_relu_out, cache1_relu = affine_relu_forward(X, W1, b1)
+        layer2_out, cache2 = affine_forward(layer1_relu_out, W2, b2)
+
         
         if self.use_Res == True:
             layerr_out, cacher = affine_forward(X, Wr, br)
-            scores = layerr_out
+            layer2_out += layerr_out
         
+        layer2_relu_out, cache2_relu = relu_forward(layer2_out)
+        layer3_out, cache3 = affine_forward(layer2_relu_out, W3, b3)
+
+        scores = layer3_out
+
 
         pass
         #############################################################################
@@ -110,7 +117,7 @@ class TwoLayerNet(object):
         # classifier loss.                                                          #
         #############################################################################
         data_loss, dout = svm_loss(scores, y)
-        reg_loss = 0.5 * reg * (np.sum(W2*W2) + np.sum(W1*W1))
+        reg_loss = 0.5 * reg * (np.sum(W3*W3) + np.sum(W2*W2) + np.sum(W1*W1))
 
 
         if self.use_Res == True:
@@ -130,17 +137,20 @@ class TwoLayerNet(object):
         # and biases. Store the results in the grads dictionary. For example,       #
         # grads['W1'] should store the gradient on W1, and be a matrix of same size #
         #############################################################################
-        dlayer1_out_relu, dW2, db2 = affine_backward(dout, cache2)
-        dlayer1_out = relu_backward(dlayer1_out_relu, cache1_relu)
-        dx, dW1, db1 = affine_backward(dlayer1_out, cache1)
+        dlayer2_relu_out, dW3, db3 = affine_backward(dout, cache3)
+        dlayer2_out = relu_backward(dlayer2_relu_out, cache2_relu)
+        dlayer1_relu_out, dW2, db2 = affine_backward(dlayer2_out, cache2)
+        dx, dW1, db1 = affine_relu_backward(dlayer1_relu_out, cache1_relu)
 
         grads['b1'] = db1
         grads['W1'] = dW1 + 1 * reg * W1
         grads['b2'] = db2
         grads['W2'] = dW2 + 1 * reg * W2
+        grads['b3'] = db3
+        grads['W3'] = dW3 + 1 * reg * W3
 
         if self.use_Res == True:
-            dx, dWr, dbr = affine_backward(dout, cacher)
+            dx, dWr, dbr = affine_backward(dlayer2_out, cacher)
             grads['Wr'] = dWr
             grads['br'] = dbr
 
@@ -208,11 +218,13 @@ class TwoLayerNet(object):
             #########################################################################
             self.params['W1'] += -grads['W1'] * learning_rate
             self.params['W2'] += -grads['W2'] * learning_rate
+            self.params['W3'] += -grads['W3'] * learning_rate
             self.params['b1'] += -grads['b1'] * learning_rate
             self.params['b2'] += -grads['b2'] * learning_rate
+            self.params['b3'] += -grads['b3'] * learning_rate
             if self.use_Res == True:
                 self.params['Wr'] += -grads['Wr'] * learning_rate
-                self.params['br'] += -grads['br'] * learning_rate
+                #self.params['br'] += -grads['br'] * learning_rate
             pass
             #########################################################################
             #                             END OF YOUR CODE                          #
@@ -261,6 +273,7 @@ class TwoLayerNet(object):
         ###########################################################################
         W1, b1 = self.params['W1'], self.params['b1']
         W2, b2 = self.params['W2'], self.params['b2']
+        W3, b3 = self.params['W3'], self.params['b3']
         if self.use_Res == True:
             Wr, br = self.params['Wr'], self.params['br']
         scores = None
@@ -269,13 +282,18 @@ class TwoLayerNet(object):
         # Store the result in the scores variable, which should be an array of      #
         # shape (N, C).                                                             #
         #############################################################################
-        layer1_out, _ = affine_relu_forward(X, W1, b1)
-        layer2_out, _ = affine_forward(layer1_out, W2, b2)
-        scores = layer2_out
+        layer1_relu_out, _ = affine_relu_forward(X, W1, b1)
+        layer2_out, _ = affine_forward(layer1_relu_out, W2, b2)
 
+        
         if self.use_Res == True:
             layerr_out, _ = affine_forward(X, Wr, br)
-            scores += layerr_out
+            layer2_out += layerr_out
+        
+        layer2_relu_out, _ = relu_forward(layer2_out)
+        layer3_out, _ = affine_forward(layer2_relu_out, W3, b3)
+
+        scores = layer3_out
 
         y_pred = np.argmax(scores, axis=1)
         pass
