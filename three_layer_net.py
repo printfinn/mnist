@@ -236,8 +236,9 @@ class ThreeLayerNet(object):
             #########################################################################
 
             if verbose and it % 100 == 0:
-                print('iteration %d / %d: loss %f val_acc %f' % (it, 
-                    num_iters, loss, (self.predict(X_val) == y_val).mean()))
+                print('iteration %d / %d: loss %f val_acc %f train_acc %f' % (it, 
+                    num_iters, loss, (self.predict(X_val) == y_val).mean(), 
+                    (self.predict(X) == y).mean()))
 
             # Every epoch, check train and val accuracy and decay learning rate.
             if it % iterations_per_epoch == 0:

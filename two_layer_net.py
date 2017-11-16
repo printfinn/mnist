@@ -8,13 +8,13 @@ class TwoLayerNet(object):
     """
     A two-layer fully-connected neural network. The net has an input dimension of
     N, a hidden layer dimension of H, and performs classification over C classes.
-    We train the network with a softmax loss function and L2 regularization on the
+    We train the network with a svm loss function and L2 regularization on the
     weight matrices. The network uses a ReLU nonlinearity after the first fully
     connected layer.
 
     In other words, the network has the following architecture:
 
-    input - fully connected layer - ReLU - fully connected layer - softmax
+    input - fully connected layer - ReLU - fully connected layer - svm
 
     The outputs of the second fully-connected layer are the scores for each class.
     """

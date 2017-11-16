@@ -14,7 +14,7 @@ In this project we will:
 - Compute the forward pass and backward pass with svm loss.
 - Use the normlizaiton to help network converge.
 - Use a stochastic gradient descent to optimize the loss function.
-
+- Try a new type of neural network: Resnet, and apply the methodology to a three layer neural network.
 
 ## Examples
 
@@ -26,7 +26,7 @@ Here is the performance of our model on test set:
 
 <img src = "img/predimg.png">
 
-The test set accuracy is about 97.2%.
+The test set accuracy is about 98.2%.
 
 ## LICENSE:
 
