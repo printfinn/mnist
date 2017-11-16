@@ -14,7 +14,7 @@ class ThreeLayerNet(object):
     fully connected layer.
 
     In other words, the network has the following architecture:
-           |-  residual fully connected layer with no bias        -|
+           |-  residual fully connected layer                     -|
     input - fully connected layer - ReLU - fully connected layer -  ->  relu - FC - SVM
 
     The outputs of the second fully-connected layer are the scores for each class.
@@ -32,6 +32,8 @@ class ThreeLayerNet(object):
         b2: Second layer biases; has shape (H2,)
         W3: Third layer weights; has shape (H2, C)
         b3: Third layer biases; has shape(C,)
+        Wr: Residual layer weights; has shape (D, H2)
+        bb: Residual layer biases; has shape(H2,)
 
         Inputs:
         - input_size: The dimension D of the input data.
