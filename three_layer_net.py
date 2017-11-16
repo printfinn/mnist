@@ -6,15 +6,16 @@ from past.builtins import xrange
 from layers import *
 class ThreeLayerNet(object):
     """
-    A two-layer fully-connected neural network. The net has an input dimension of
-    N, a hidden layer dimension of H, and performs classification over C classes.
-    We train the network with a softmax loss function and L2 regularization on the
-    weight matrices. The network uses a ReLU nonlinearity after the first fully
-    connected layer.
+    A three-layer fully-connected neural network with a residual block. 
+    The net has an input dimension of N, a hidden layer dimension of H, 
+    a hidden2 layer dimension of H2, and performs classification over C classes.
+    We train the network with a svm loss function and L2 regularization on the
+    weight matrices. The network uses a ReLU nonlinearity after the first and second
+    fully connected layer.
 
     In other words, the network has the following architecture:
-
-    input - fully connected layer - ReLU - fully connected layer - softmax
+           |-  residual fully connected layer with no bias        -|
+    input - fully connected layer - ReLU - fully connected layer -  ->  relu - FC - SVM
 
     The outputs of the second fully-connected layer are the scores for each class.
     """
@@ -27,13 +28,17 @@ class ThreeLayerNet(object):
 
         W1: First layer weights; has shape (D, H)
         b1: First layer biases; has shape (H,)
-        W2: Second layer weights; has shape (H, C)
-        b2: Second layer biases; has shape (C,)
+        W2: Second layer weights; has shape (H, H2)
+        b2: Second layer biases; has shape (H2,)
+        W3: Third layer weights; has shape (H2, C)
+        b3: Third layer biases; has shape(C,)
 
         Inputs:
         - input_size: The dimension D of the input data.
-        - hidden_size: The number of neurons H in the hidden layer.
+        - hidden_size: The number of neurons H in the first hidden layer.
+        - hidden2_size: The number of neurons H2 in the second hidden layer.
         - output_size: The number of classes C.
+        - use_Res: Apply residual block shortcut (or not).
         """
         self.params = {}
         self.params['W1'] = std * np.random.randn(input_size, hidden_size)
@@ -224,7 +229,7 @@ class ThreeLayerNet(object):
             self.params['b3'] += -grads['b3'] * learning_rate
             if self.use_Res == True:
                 self.params['Wr'] += -grads['Wr'] * learning_rate
-                #self.params['br'] += -grads['br'] * learning_rate
+                self.params['br'] += -grads['br'] * learning_rate
             pass
             #########################################################################
             #                             END OF YOUR CODE                          #

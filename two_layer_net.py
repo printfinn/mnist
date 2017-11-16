@@ -19,7 +19,7 @@ class TwoLayerNet(object):
     The outputs of the second fully-connected layer are the scores for each class.
     """
 
-    def __init__(self, input_size, hidden_size, output_size, std=1e-4, use_Res=False):
+    def __init__(self, input_size, hidden_size, output_size, std=1e-4):
         """
         Initialize the model. Weights are initialized to small random values and
         biases are initialized to zero. Weights and biases are stored in the
@@ -40,10 +40,6 @@ class TwoLayerNet(object):
         self.params['b1'] = np.zeros(hidden_size)
         self.params['W2'] = std * np.random.randn(hidden_size, output_size)
         self.params['b2'] = np.zeros(output_size)
-        self.use_Res = use_Res
-        if use_Res == True:
-            self.params['Wr'] = std * np.random.randn(input_size, output_size)
-            self.params['br'] = np.zeros(output_size)
 
     def loss(self, X, y=None, reg=0.0):
         """
@@ -71,8 +67,6 @@ class TwoLayerNet(object):
         # Unpack variables from the params dictionary
         W1, b1 = self.params['W1'], self.params['b1']
         W2, b2 = self.params['W2'], self.params['b2']
-        if self.use_Res == True:
-            Wr, br = self.params['Wr'], self.params['br']
         N, D = X.shape
 
         scores = None
@@ -86,10 +80,6 @@ class TwoLayerNet(object):
         layer1_out_relu, cache1_relu = relu_forward(layer1_out)
         layer2_out, cache2 = affine_forward(layer1_out_relu, W2, b2)
         scores = layer2_out
-        
-        if self.use_Res == True:
-            layerr_out, cacher = affine_forward(X, Wr, br)
-            scores = layerr_out
         
 
         pass
@@ -111,10 +101,6 @@ class TwoLayerNet(object):
         #############################################################################
         data_loss, dout = svm_loss(scores, y)
         reg_loss = 0.5 * reg * (np.sum(W2*W2) + np.sum(W1*W1))
-
-
-        if self.use_Res == True:
-           reg_loss += 0.5 * reg * (np.sum(Wr*Wr))
 
         loss = data_loss + reg_loss
         pass
@@ -138,11 +124,6 @@ class TwoLayerNet(object):
         grads['W1'] = dW1 + 1 * reg * W1
         grads['b2'] = db2
         grads['W2'] = dW2 + 1 * reg * W2
-
-        if self.use_Res == True:
-            dx, dWr, dbr = affine_backward(dout, cacher)
-            grads['Wr'] = dWr
-            grads['br'] = dbr
 
         pass
         #############################################################################
@@ -210,9 +191,6 @@ class TwoLayerNet(object):
             self.params['W2'] += -grads['W2'] * learning_rate
             self.params['b1'] += -grads['b1'] * learning_rate
             self.params['b2'] += -grads['b2'] * learning_rate
-            if self.use_Res == True:
-                self.params['Wr'] += -grads['Wr'] * learning_rate
-                self.params['br'] += -grads['br'] * learning_rate
             pass
             #########################################################################
             #                             END OF YOUR CODE                          #
@@ -261,8 +239,6 @@ class TwoLayerNet(object):
         ###########################################################################
         W1, b1 = self.params['W1'], self.params['b1']
         W2, b2 = self.params['W2'], self.params['b2']
-        if self.use_Res == True:
-            Wr, br = self.params['Wr'], self.params['br']
         scores = None
         #############################################################################
         # TODO: Perform the forward pass, computing the class scores for the input. #
@@ -272,10 +248,6 @@ class TwoLayerNet(object):
         layer1_out, _ = affine_relu_forward(X, W1, b1)
         layer2_out, _ = affine_forward(layer1_out, W2, b2)
         scores = layer2_out
-
-        if self.use_Res == True:
-            layerr_out, _ = affine_forward(X, Wr, br)
-            scores += layerr_out
 
         y_pred = np.argmax(scores, axis=1)
         pass
